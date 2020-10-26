@@ -1,0 +1,20 @@
+{
+  "name": "eventmanager",
+  "version": "1.0.0",
+  "description": "An Event Manager, allowing Users to login, and some Users to create, delete, update events, and all Users to book an event, or cancel their booking.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "graphql",
+    "react",
+    "mongodb",
+    "node.js",
+    "SPA",
+    "event",
+    "booking"
+  ],
+  "author": "Artur Chojecki",
+  "license": "MIT"
+}
