@@ -1,6 +1,7 @@
 const {transformEvent} = require('./helpers');
 
 const Event = require('../../models/event');
+const User = require('../../models/user');
 
 module.exports = {
     events: async () => {
@@ -14,23 +15,27 @@ module.exports = {
             throw err;
         }
     },
-    createEvent: async args => {             
+    createEvent: async (args, req) => {             
         try{
+            if(!req.isAuth) {throw new Error("Not Authenticated");}
+
+            const user = await User.findById(req.userId);
+            if(!user) {throw new Error("User not found", err)}
+
             const {title, description, price, date } = args.eventInput;
             const event = new Event({
                 title, description, price, date: new Date(date),
-                creator: "5fa5a51d7f9fd7093a1bee74"
+                creator: user
             });
             const createdEvent = await event
                 .save();
-            const user = await User.findById("5fa5a51d7f9fd7093a1bee74");
-            if(!user) {throw new Error("User not found", err)}
             user.createdEvents.push(createdEvent);
-            await user.save();
+            await user
+                .save();
             return transformEvent(createdEvent);            
         }catch (err) {
             console.log(err);
-            if(err.message = "User not found"){
+            if(err.message === "User not found" || err.message === "Not Authenticated"){
                 throw err;
             }else{
                 throw new Error("Event not created", err)

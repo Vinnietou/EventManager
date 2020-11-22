@@ -2,3 +2,4 @@
 package-lock.json
 nodemon.json
 notes
+/frontend/node_modules
