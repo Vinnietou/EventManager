@@ -12,6 +12,16 @@ const app = express();
 
 app.use(bodyParser.json());
 
+app.use((req,res,next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if(req.method === 'OPTIONS'){
+        return res.sendStatus(200);
+    }
+    next();
+});
+
 app.use(isAuth);
 
 app.use('/graphql', graphqlHTTP({
@@ -24,7 +34,7 @@ mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PA
     }@clustercero.4b7sk.mongodb.net/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority`,
     {useNewUrlParser: true, useUnifiedTopology: true}
     ).then(() => {
-        app.listen(5000);
+        app.listen(8000);
         console.log("Database Connection Successful");
     }).catch(error => {
         console.log(error);
