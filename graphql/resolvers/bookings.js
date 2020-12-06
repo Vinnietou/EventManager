@@ -1,12 +1,14 @@
 const Booking = require('../../models/booking');
 const Event = require('../../models/event');
+const User = require('../../models/user');
+
 const {transformBooking, transformEvent} = require('./helpers');
 
 module.exports = {
     bookings: async (args, req) => {
         try{
             if(!req.isAuth) {throw new Error("Not Authenticated");}
-            const bookings = await Booking.find();
+            const bookings = await Booking.find({user: req.userId});
             return bookings.map(booking => {
                 return transformBooking(booking);
             });
@@ -27,6 +29,7 @@ module.exports = {
             const result = await booking.save();
             return transformBooking(result);
         }catch(err){
+            console.log(err);
             throw err;
         }
     },
