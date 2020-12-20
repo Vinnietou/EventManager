@@ -11,7 +11,9 @@ class EventsPage extends Component{
         creating: false,
         events: [],
         isLoading: false,
-        selectedEvent: null
+        selectedEvent: null,
+        viewingEventDetails: false,
+        editingEvent: false
     };
     isActive = true;
 
@@ -54,21 +56,32 @@ class EventsPage extends Component{
 
         const requestBody = {
             query: `
-                mutation {
-                    createEvent(eventInput: {
-                        title: "${title}",
-                        description: "${description}",
-                        price: ${price},
-                        date: "${date}"
-                    }) {
-                        _id
-                        title
-                        description
-                        price
-                        date
+                mutation CreateEvent(
+                    $newEventTitle: String!,
+                    $newEventDescription: String!,
+                    $newEventPrice: Float!,
+                    $newEventDate: String!
+                    ) {
+                        createEvent(eventInput: {
+                            title: $newEventTitle,
+                            description: $newEventDescription,
+                            price: $newEventPrice,
+                            date: $newEventDate
+                        }) {
+                            _id
+                            title
+                            description
+                            price
+                            date
+                        }
                     }
-                }
-            `
+            `,
+            variables: {
+                newEventTitle: title,
+                newEventDescription: description,
+                newEventPrice: price,
+                newEventDate: date
+            }
         };  
 
         fetch('http://localhost:8000/graphql', {
@@ -107,7 +120,7 @@ class EventsPage extends Component{
     };
 
     modalCancelHandler = () => {
-        this.setState({creating: false, selectedEvent: null});
+        this.setState({creating: false, selectedEvent: null, viewingEventDetails: false, editingEvent: false});
     };
 
     fetchEvents() {
@@ -160,26 +173,88 @@ class EventsPage extends Component{
     showDetailHandler = eventId => {
         this.setState(prevState => {
             const selectedEvent = prevState.events.find(e => e._id === eventId)
-            return {selectedEvent: selectedEvent};
+            return {
+                selectedEvent: selectedEvent,
+                viewingEventDetails: true
+            };
         });
     }
 
-    modalBookEventHandler = () => {
+    deleteEventFromListHandler = eventId => {
         if(!this.context.token){
             this.setState({selectedEvent: null});
             return;
         }
+
+        const selectedEventId = eventId;
+
+        const requestBody = {
+            query: `
+                mutation DeleteMyEvent ($selectedId: ID!){
+                    deleteEvent(eventId: $selectedId) {
+                        _id
+                    }
+                }
+            `,
+            variables: {
+                selectedId: selectedEventId
+            }
+        };
+
+        fetch('http://localhost:8000/graphql', {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.context.token
+            }
+        })
+        .then(res => {
+            if(res.status !== 200 && res.status !== 201){
+                throw new Error('Failed!');
+            }
+            return res.json();
+        })
+        .then(resData => {
+            console.log(resData);
+            if(this.isActive){
+                this.setState({ selectedEvent: null });
+                this.fetchEvents();
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        });
+    }
+
+    updateEventFromListHandler = eventId => {
+        return;
+    }
+
+    modalBookEventHandler = () => {
+        if(!this.context.token){
+            this.setState({
+                selectedEvent: null,
+                viewingEventDetails: false
+            });
+            return;
+        }
+
+        const selectedEventId = this.state.selectedEvent._id;
         
         const requestBody = {
             query: `
-                mutation {
-                    bookEvent(eventId: "${this.state.selectedEvent._id}") {
+                mutation BookEvent ($selectedId: ID!){
+                    bookEvent(eventId: $selectedId) {
                         _id
                         createdAt
                         updatedAt
                     }
                 }
-            `
+            `,
+            variables: {
+                selectedId: selectedEventId
+            }
         };  
 
         fetch('http://localhost:8000/graphql', {
@@ -199,7 +274,10 @@ class EventsPage extends Component{
         .then(resData => {
             console.log(resData);
             if(this.isActive){
-                this.setState({selectedEvent: null});
+                this.setState({
+                    selectedEvent: null,
+                    viewingEventDetails: false
+                });
             }
         })
         .catch(err => {
@@ -215,7 +293,7 @@ class EventsPage extends Component{
 
         return(
             <React.Fragment>
-                {(this.state.creating || this.state.selectedEvent) && <Backdrop/>}
+                {(this.state.creating || this.state.viewingEventDetails) && <Backdrop/>}
                 {this.state.creating && (
                     <Modal 
                         title="Add Event"
@@ -245,7 +323,7 @@ class EventsPage extends Component{
                         </form>
                     </Modal>
                 )}
-                {this.state.selectedEvent && (<Modal 
+                {this.state.viewingEventDetails && (<Modal 
                         title={this.state.selectedEvent.title}
                         canCancel
                         canConfirm
@@ -268,6 +346,8 @@ class EventsPage extends Component{
                         events={this.state.events}
                         loggedInUserId={this.context.userId}
                         onViewDetail={this.showDetailHandler}
+                        onViewUpdate={this.updateEventFromListHandler}
+                        onClickDelete={this.deleteEventFromListHandler}
                     />)
                 }
             </React.Fragment>

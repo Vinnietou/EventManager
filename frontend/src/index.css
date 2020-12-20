@@ -32,6 +32,30 @@ body {
   cursor: pointer;
 }
 
+.btn-update{
+  background: #148a59;
+  font: inherit;
+  border: 1px solid #148a59;
+  border-radius: 3px;
+  padding: 0.25rem 1rem;
+  margin-right: 1rem;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.26);
+  color: white;
+  cursor: pointer;
+}
+
+.btn-delete{
+  background: #a50000;
+  font: inherit;
+  border: 1px solid #a50000;
+  border-radius: 3px;
+  padding: 0.25rem 1rem;
+  margin-right: 1rem;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.26);
+  color: white;
+  cursor: pointer;
+}
+
 .form-actions button:hover,
 .form-actions button:active,
 .btn:hover,

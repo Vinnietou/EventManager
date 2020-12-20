@@ -32,32 +32,40 @@ class LoginPage extends Component{
 
         let requestBody = {
             query: `
-                query {
+                query Login($loginEmail: String!, $loginPassword: String!){
                     login(
-                        email: "${email}",
-                        password: "${password}"
+                        email: $loginEmail,
+                        password: $loginPassword
                     ) {
                         userId
                         token
                         tokenExpiration
                     }
                 }
-            `
+            `,
+            variables: {
+                loginEmail: email,
+                loginPassword: password
+            }
         };
 
         if(!this.state.isLogin) {
             requestBody = {
                 query: `
-                    mutation {
+                    mutation Signup($userSubmittedEmail: String!, $userSubmittedPassword: String!) {
                         createUser(userInput: {
-                            email: "${email}",
-                            password: "${password}"
+                            email: $userSubmittedEmail,
+                            password: $userSubmittedPassword
                         }) {
                             _id
                             email
                         }
                     }
-                `
+                `,
+                variables: {
+                    userSubmittedEmail: email,
+                    userSubmittedPassword: password
+                }
             };
         }
 
@@ -77,6 +85,7 @@ class LoginPage extends Component{
             return res.json();
         })
         .then(resData => {
+            this.switchModeHandler();
             if(resData.data.login.token){
                 this.context.login(
                     resData.data.login.token,
@@ -90,25 +99,27 @@ class LoginPage extends Component{
         });
     }
 
-
     render(){
         return (
-        <form className="login-form" onSubmit = {this.submitHandler}>
-            <div className="form-control">
-                <label htmlFor="email">E-mail</label>
-                <input type="email" id="email" ref={this.emailElement}/>
-            </div>
-            <div className="form-control">
-                <label htmlFor="password">Password</label>
-                <input type="password" id="password" ref={this.passwordElement}/>
-            </div>
-            <div className="form-actions">
-                <button type="submit">Submit</button>
-                <button type="button" onClick = {this.switchModeHandler}>
-                    Switch to {this.state.isLogin ? 'Signup' : 'Login'}
-                </button>
-            </div>
-        </form>
+        <React.Fragment>
+            {this.state.isLogin ? <h1 className="login-header">Login</h1> : <h1 className="login-header">SignUp</h1>}
+            <form className="login-form" onSubmit = {this.submitHandler}>
+                <div className="form-control">
+                    <label htmlFor="email">E-mail</label>
+                    <input type="email" id="email" ref={this.emailElement}/>
+                </div>
+                <div className="form-control">
+                    <label htmlFor="password">Password</label>
+                    <input type="password" id="password" ref={this.passwordElement}/>
+                </div>
+                <div className="form-actions">
+                    <button type="submit">Submit</button>
+                    <button type="button" onClick = {this.switchModeHandler}>
+                        Switch to {this.state.isLogin ? 'Signup' : 'Login'}
+                    </button>
+                </div>
+            </form>
+        </React.Fragment>
         );
     }
 }

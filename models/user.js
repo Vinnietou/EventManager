@@ -12,6 +12,11 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    admin: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     createdEvents: [
         {
             type: Schema.Types.ObjectId,

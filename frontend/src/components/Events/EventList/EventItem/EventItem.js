@@ -8,10 +8,17 @@ const eventItem = props => (
             <h1>{props.title}</h1>
             <h2>PLN {props.price} - {new Date(props.date).toLocaleDateString()}</h2>        
         </div>
-        <div>
-            {props.userId === props.creatorId ? <p>You're the owner of this event</p> :
-            <button className="btn" onClick={props.onDetail.bind(this, props.eventId)}>View Details</button>}
-        </div>
+        {props.userId === props.creatorId && (
+            <div>
+                <button className="btn-update" onClick={props.onUpdate.bind(this, props.eventId)}>Update</button>
+                <button className="btn-delete" onClick={props.onDelete.bind(this, props.eventId)}>Delete</button>    
+            </div>
+        )}
+        {props.userId !== props.creatorId && (
+            <div>
+                <button className="btn" onClick={props.onDetail.bind(this, props.eventId)}>View Details</button>
+            </div>
+        )}
     </li>
 );
 
