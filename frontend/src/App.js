@@ -7,16 +7,18 @@ import EventsPage from './components/PageEvents';
 import BookingsPage from './components/PageBookings';
 import MainNavigation from './components/Navigation/MainNavigation';
 import LoginContext from './context/login-context';
+import UsersPage from './components/PageUsers';
 
 class App extends Component {
 
   state = {
     token: null,
-    userId: null
+    userId: null,
+    admin: null
   }
 
-  login = (token, userId, tokenExpiration) => {
-    this.setState({token: token, userId: userId});
+  login = (token, userId, tokenExpiration, admin) => {
+    this.setState({token: token, userId: userId, admin: admin});
   };
 
   logout = () => {
@@ -32,6 +34,7 @@ class App extends Component {
             value={{
               token: this.state.token,
               userId: this.state.userId,
+              admin: this.state.admin,
               login: this.login,
               logout: this.logout
             }}
@@ -45,6 +48,7 @@ class App extends Component {
                 <Route path="/events" component={EventsPage}/>
                 {this.state.token && <Route path="/bookings" component={BookingsPage}/>}
                 {!this.state.token && <Redirect to="/login" exact />}
+                {this.state.admin && <Route path="/users" component={UsersPage}/>}
               </Switch>
             </main>
           </LoginContext.Provider>

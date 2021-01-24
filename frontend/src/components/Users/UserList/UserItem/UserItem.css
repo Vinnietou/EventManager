@@ -1,0 +1,30 @@
+.users__list-item {
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 1px solid #5101d1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.users__list-item h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #5101d1;
+}
+
+.users__list-item h2 {
+    margin: 0;
+    font-size: 1rem;
+    color: #7c7c7c;
+}
+
+.users__list-item h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #d41313;
+}
+
+.users__list-item p {
+    margin: 0;
+}

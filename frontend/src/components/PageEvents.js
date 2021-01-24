@@ -180,6 +180,17 @@ class EventsPage extends Component{
         });
     }
 
+    updateEventFromListHandler = eventId => {
+        this.setState(prevState => {
+            const selectedEvent = prevState.events.find(e => e._id === eventId)
+            return {
+                selectedEvent: selectedEvent,
+                editingEvent: true,
+                viewingEventDetails: false
+            };
+        });
+    }
+
     deleteEventFromListHandler = eventId => {
         if(!this.context.token){
             this.setState({selectedEvent: null});
@@ -225,10 +236,6 @@ class EventsPage extends Component{
         .catch(err => {
             console.log(err);
         });
-    }
-
-    updateEventFromListHandler = eventId => {
-        return;
     }
 
     modalBookEventHandler = () => {
@@ -285,6 +292,94 @@ class EventsPage extends Component{
         });
     }
 
+    modalUpdateHandler = () => {
+        if(!this.context.token){
+            this.setState({
+                selectedEvent: null,
+                viewingEventDetails: false,
+                editingEvent: false
+            });
+            return;
+        }
+
+        this.setState({editingEvent: false});
+        const title = this.titleElement.current.value;
+        const price = +this.priceElement.current.value;
+        const date = this.dateElement.current.value;
+        const description = this.descriptionElement.current.value;
+        const selectedEventId = this.state.selectedEvent._id;
+
+        if(
+            title.trim().length === 0 ||
+            price <= 0 ||
+            date.trim().length === 0 ||
+            description.trim().length === 0
+        ) {
+            return;
+        }
+
+        const requestBody = {
+            query: `
+                mutation UpdateEvent(
+                    $updatedEvent: ID!,
+                    $updatedEventTitle: String!,
+                    $updatedEventDescription: String!,
+                    $updatedEventPrice: Float!,
+                    $updatedEventDate: String!
+                    ) {
+                        updateEvent(eventId: $updatedEvent, eventInput: {
+                            title: $updatedEventTitle,
+                            description: $updatedEventDescription,
+                            price: $updatedEventPrice,
+                            date: $updatedEventDate
+                        }) {
+                            _id
+                            title
+                            description
+                            price
+                            date
+                        }
+                    }
+            `,
+            variables: {
+                updatedEvent: selectedEventId,
+                updatedEventTitle: title,
+                updatedEventDescription: description,
+                updatedEventPrice: price,
+                updatedEventDate: date
+            }
+        };
+
+        fetch('http://localhost:8000/graphql', {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.context.token
+            }
+        })
+        .then(res => {
+            if(res.status !== 200 && res.status !== 201){
+                throw new Error('Failed!');
+            }
+            return res.json();
+        })
+        .then(resData => {
+            console.log(resData);
+            if(this.isActive){
+                this.setState({ 
+                    selectedEvent: null,
+                    editingEvent: false,
+                    viewingEventDetails: false
+                });
+                this.fetchEvents();
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        });
+    }
+
     componentWillUnmount() {
         this.isActive = false;
     }
@@ -293,7 +388,7 @@ class EventsPage extends Component{
 
         return(
             <React.Fragment>
-                {(this.state.creating || this.state.viewingEventDetails) && <Backdrop/>}
+                {(this.state.creating || this.state.viewingEventDetails || this.state.editingEvent) && <Backdrop/>}
                 {this.state.creating && (
                     <Modal 
                         title="Add Event"
@@ -334,6 +429,35 @@ class EventsPage extends Component{
                         <h1>{this.state.selectedEvent.title}</h1>
                         <h2>PLN {this.state.selectedEvent.price} - {new Date(this.state.selectedEvent.date).toLocaleDateString()}</h2>
                         <p>{this.state.selectedEvent.description}</p>
+                    </Modal>
+                )}
+                {this.state.editingEvent && (
+                    <Modal 
+                        title="Update Event"
+                        canCancel
+                        canConfirm
+                        onCancel={this.modalCancelHandler}
+                        onConfirm={this.modalUpdateHandler}
+                        confirmText="Update"
+                    >
+                        <form>
+                            <div className="form-control">
+                                <label htmlFor="title">Title</label>
+                                <input type="text" id="title" ref={this.titleElement}></input>
+                            </div>
+                            <div className="form-control">
+                                <label htmlFor="price">Price</label>
+                                <input type="number" id="price" ref={this.priceElement}></input>
+                            </div>
+                            <div className="form-control">
+                                <label htmlFor="date">Date</label>
+                                <input type="datetime-local" id="date" ref={this.dateElement}></input>
+                            </div>
+                            <div className="form-control">
+                                <label htmlFor="description">Description</label>
+                                <textarea id="description" rows="4" ref={this.descriptionElement}></textarea>
+                            </div>
+                        </form>
                     </Modal>
                 )}        
                 {this.context.token && (<div className="events-control">

@@ -10,13 +10,14 @@ module.exports = {
         const isEqual = await bcrypt.compare(password, user.password);
         if(!isEqual) { throw new Error("Password is incorrect"); }
 
-        const token = jwt.sign({userId: user.id, email: user.email}, process.env.SECRET, {
+        const token = jwt.sign({userId: user.id, email: user.email, admin: user.admin}, process.env.SECRET, {
             expiresIn: "1h"
         });
         return { 
             userId: user.id,
             token: token,
-            tokenExpiration: 1
+            tokenExpiration: 1,
+            admin: user.admin
         };
 
     }

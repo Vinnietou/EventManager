@@ -25,6 +25,9 @@ const mainNavigation = props => (
                         <li>
                             <NavLink to="/bookings">Bookings</NavLink>
                         </li>
+                        {context.admin && (<li>
+                        <NavLink to="/users">Users</NavLink>
+                        </li>)}
                         <li>
                             <button onClick={context.logout}>Logout</button>
                         </li>

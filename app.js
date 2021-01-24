@@ -31,7 +31,7 @@ app.use('/graphql', graphqlHTTP({
 }));
 
 mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD
-    }@clustercero.4b7sk.mongodb.net/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority`,
+    }@clustercero.4b7sk.mongodb.net/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority&ssl=true`,
     {useNewUrlParser: true, useUnifiedTopology: true}
     ).then(() => {
         app.listen(8000);

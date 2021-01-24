@@ -21,6 +21,7 @@ type Event{
 type User{
     _id: ID!
     email: String!
+    admin: Boolean
     password: String
     createdEvents: [Event!]
 }
@@ -29,6 +30,7 @@ type AuthData {
     userId: ID!
     token: String!
     tokenExpiration: Int!
+    admin: Boolean!
 }
 
 input EventInput {
@@ -46,6 +48,7 @@ input UserInput {
 type RootQuery{
     bookings: [Booking!]!
     events: [Event!]!
+    users: [User!]!
     login(email: String!, password: String!): AuthData!
 }
 

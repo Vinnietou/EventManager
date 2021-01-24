@@ -15,5 +15,13 @@ const transformEvent = event => {
     }
 }
 
+const transformUser = user => {
+    return{
+        ...user._doc,
+        password: null
+    }
+}
+
 exports.transformEvent = transformEvent;
 exports.transformBooking = transformBooking;
+exports.transformUser = transformUser;

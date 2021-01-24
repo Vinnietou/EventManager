@@ -40,6 +40,7 @@ class LoginPage extends Component{
                         userId
                         token
                         tokenExpiration
+                        admin
                     }
                 }
             `,
@@ -90,7 +91,8 @@ class LoginPage extends Component{
                 this.context.login(
                     resData.data.login.token,
                     resData.data.login.userId,
-                    resData.data.login.tokenExpiration
+                    resData.data.login.tokenExpiration,
+                    resData.data.login.admin
                 )
             }
         })
